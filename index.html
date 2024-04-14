@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Words Quiz</title>
+    <style>
+        /* Estilos gerais */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilos específicos para dispositivos móveis */
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .names, .date, .footer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Question Words Quiz</h1>
+        <div id="question" class="question"></div>
+        <div id="options"></div>
+        <button id="nextButton">Próxima</button>
+        <div id="feedback"></div>
+        <div id="quizResult"></div>
+        <div id="timer">Tempo restante: <span id="countdown"></span> segundos</div>
+    </div>
+
+    <script>
+        // JavaScript aqui
+        const questions = [
+            {
+                question: "_____ are you?",
+                options: ["Who", "What", "Where", "Why"],
+                answer: "Who"
+            },
+            {
+                question: "_____ is your last name?",
+                options: ["What", "Where", "Who", "Which"],
+                answer: "What"
+            },
+            {
+                question: "_____ is your favorite color?",
+                options: ["What", "Who", "Why", "How"],
+                answer: "What"
+            },
+            {
+                question: "_____ is your birthday?",
+                options: ["When", "Where", "Who", "What"],
+                answer: "When"
+            }
+            // Adicione mais perguntas aqui...
+        ];
+
+        // Outras variáveis
+        let correctAnswers = 0;
+        const userAnswers = [];
+        let currentQuestion = 0;
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextButton = document.getElementById('nextButton');
+        const feedbackElement = document.getElementById('feedback');
+        const quizResultElement = document.getElementById('quizResult');
+        const timerElement = document.getElementById('countdown');
+        let countdown;
+
+        // Função para iniciar o temporizador
+        function startTimer(seconds) {
+            let remainingTime = seconds;
+            timerElement.textContent = remainingTime;
+
+            countdown = setInterval(() => {
+                remainingTime--;
+                timerElement.textContent = remainingTime;
+
+                if (remainingTime <= 0) {
+                    clearInterval(countdown);
+                    showQuizResult();
+                }
+            }, 1000);
+        }
+
+        // Função para carregar uma pergunta
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            questionElement.textContent = q.question;
+            optionsElement.innerHTML = '';
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.addEventListener('click', () => {
+                    checkAnswer(option === q.answer, option, q.answer);
+                });
+                optionsElement.appendChild(button);
+            });
+            feedbackElement.textContent = '';
+        }
+
+        // Função para verificar a resposta
+        function checkAnswer(isCorrect, userAnswer, correctAnswer) {
+            if (isCorrect) {
+                feedbackElement.textContent = 'Resposta Correta!';
+                feedbackElement.classList.add('correct');
+                correctAnswers++;
+            } else {
+                feedbackElement.textContent = `Você errou a questão "${questions[currentQuestion].question}" você selecionou "${userAnswer}", a resposta era "${correctAnswer}".`;
+                feedbackElement.classList.add('incorrect');
+                userAnswers.push({ question: questions[currentQuestion].question, userAnswer, correctAnswer });
+            }
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                clearInterval(countdown);
+                showQuizResult();
+            }
+        }
+
+        // Função para mostrar o resultado do quiz
+        function showQuizResult() {
+            quizResultElement.innerHTML = `<p>Você acertou ${correctAnswers} de ${questions.length} questões:</p>`;
+            const resultList = document.createElement('ul');
+            userAnswers.forEach(answer => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `Você errou a questão "${answer.question}" você selecionou "${answer.userAnswer}", a resposta era "${answer.correctAnswer}".`;
+                resultList.appendChild(listItem);
+            });
+            quizResultElement.appendChild(resultList);
+        }
+
+        // Adicionar evento de clique ao botão de próxima
+        nextButton.addEventListener('click', loadQuestion);
+
+        // Carregar a primeira pergunta e iniciar o temporizador
+        loadQuestion();
+        startTimer(120); // 120 segundos para responder todas as perguntas
+    </script>
+</body>
+</html>
